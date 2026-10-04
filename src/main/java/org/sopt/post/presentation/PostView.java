@@ -1,8 +1,13 @@
-package org.sopt;
+package org.sopt.post.presentation;
+
+import org.sopt.post.domain.Category;
+import org.sopt.post.domain.Comment;
+import org.sopt.post.domain.Post;
 
 import java.util.List;
 import java.util.Scanner;
 
+// 콘솔 입력과 출력 담당
 public class PostView {
 
     Scanner scanner = new Scanner(System.in);
@@ -50,10 +55,22 @@ public class PostView {
     }
 
 
-    public void getAfterPostView(Post readPost) {
+    public void getPostView(Post readPost) {
         System.out.println("\n=== 게시글 ===");
+        System.out.println("카테고리: " + readPost.getCategory());
         System.out.println("제목: " + readPost.getTitle());
         System.out.println("내용: " + readPost.getContent());
+        System.out.println("좋아요: " + readPost.getLikes());
+        
+        // 댓글이 있으면  출력, 없으면 스킵
+        if (!readPost.getComments().isEmpty()){
+            System.out.println("댓글: ");
+            for (int i = 0; i < readPost.getComments().size(); i++) {
+                for (Comment comment : readPost.getComments()) {
+                    System.out.println(comment.getAuthor() + ": " + comment.getContent());
+                }
+            }
+        }
     }
 
     public void printMessage(String s) {
@@ -63,5 +80,30 @@ public class PostView {
     public int readPostNumber() {
         System.out.println("수정/삭제할 게시글 번호: ");
         return Integer.parseInt(scanner.nextLine()) - 1;
+    }
+
+    // 게시물 카테고리를 선택할 수 있게 한다.
+    // 입력을 숫자로 했는지, 목록에 있는 번호를 선택했는지 검증한다.
+    public Category readCategory() {
+        Category[] categories = Category.values();
+
+        for (int i = 0; i < categories.length; i++) {
+            System.out.println((i + 1) + ". " + categories[i]);
+        }
+
+        System.out.print("카테고리 번호: ");
+
+        int number;
+        try {
+            number = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("카테고리 번호는 숫자로 입력해주세요.");
+        }
+
+        if (number < 1 || number > categories.length) {
+            throw new IllegalArgumentException("목록에 있는 카테고리 번호를 선택해주세요.");
+        }
+
+        return categories[number - 1];
     }
 }
