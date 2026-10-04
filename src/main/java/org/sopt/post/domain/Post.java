@@ -16,10 +16,10 @@ public class Post {
         validateTitleAndContent(title, content);
         validateCategory(category);
 
+        this.category = category;
         this.title = title;
         this.content = content;
         this.likes = 0;
-        this.category = category;
 
     }
     public Category getCategory() {

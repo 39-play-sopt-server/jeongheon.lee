@@ -8,9 +8,10 @@ public class Comment {
     private int likes;
 
     public Comment(String author, String content, int likes) {
+        validateAuthorAndContent(author, content);
         this.author = author;
         this.content = content;
-        this.likes = likes;
+        this.likes = 0;
     }
 
     public String getAuthor() {
@@ -23,5 +24,14 @@ public class Comment {
         return likes;
     }
 
+    private void validateAuthorAndContent(String author, String content) {
+        if (author == null || author.isBlank()) {
+            throw new IllegalArgumentException("작성자는 비어 있을 수 없습니다.");
+        }
+
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("본문은 비어 있을 수 없습니다.");
+        }
+    }
 
 }

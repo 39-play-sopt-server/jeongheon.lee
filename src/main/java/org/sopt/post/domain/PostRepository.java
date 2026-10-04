@@ -1,4 +1,9 @@
 package org.sopt.post.domain;
 
-public class PostRepository {
+import java.util.List;
+
+public interface PostRepository {
+    void save(Post post);
+    List<Post> findAll();
+    void delete(Post post);
 }

@@ -65,10 +65,8 @@ public class PostView {
         // 댓글이 있으면  출력, 없으면 스킵
         if (!readPost.getComments().isEmpty()){
             System.out.println("댓글: ");
-            for (int i = 0; i < readPost.getComments().size(); i++) {
                 for (Comment comment : readPost.getComments()) {
                     System.out.println(comment.getAuthor() + ": " + comment.getContent());
-                }
             }
         }
     }
@@ -78,7 +76,7 @@ public class PostView {
     }
 
     public int readPostNumber() {
-        System.out.println("수정/삭제할 게시글 번호: ");
+        System.out.println("게시글 번호를 입력하세요: ");
         return Integer.parseInt(scanner.nextLine()) - 1;
     }
 

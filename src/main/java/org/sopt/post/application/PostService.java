@@ -1,5 +1,53 @@
 package org.sopt.post.application;
 
-// 게시글 작성·조회·수정·삭제의 순서 조율
+import org.sopt.post.application.exception.PostNotFoundException;
+import org.sopt.post.domain.Category;
+import org.sopt.post.domain.Post;
+import org.sopt.post.domain.PostRepository;
+
+import java.util.List;
+
+// 게시글 작성·조회·수정·삭제의 순서 조율 담당
 public class PostService {
+    private final PostRepository repository;
+
+    // 생성자
+    public PostService(PostRepository repository) {
+        this.repository = repository;
+    }
+
+    // Post를 생성하고 저장소에 보관함.
+    // 빈 제목·본문 검사(도메인 규칙)는 Post가 수행함
+    public void createPost(String title, String content, Category category) {
+        Post post = new Post(title, content, category);
+        repository.save(post);
+    }
+
+    // 게시물 목록 조회
+    public List<Post> getPosts() {
+        return repository.findAll();
+    }
+
+    // 게시물 조회, 해당 번호의 게시글이 있는지 확인함.
+    public Post getPost(int index) {
+        List<Post> posts = repository.findAll();
+
+        if (index < 0 || index >= posts.size()) {
+            throw new PostNotFoundException("존재하지 않는 게시글입니다.");
+        }
+        return posts.get(index);
+    }
+
+    // 게시글을 찾고 수정 규칙의 실행을 Post(애그리거트)에 맡김
+    public void updatePost(int index, String title, String content) {
+        Post post = getPost(index);
+        post.update(title, content);
+
+    }
+
+    // 게시글을 찾고 저장소에 제거를 요청
+    public void deletePost(int index) {
+        Post post = getPost(index);
+        repository.delete(post);
+    }
 }
