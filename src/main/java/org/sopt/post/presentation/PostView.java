@@ -49,7 +49,7 @@ public class PostView {
             Post currentPost = posts.get(i);
 
             System.out.println(
-                    (i + 1) + ". " + currentPost.getTitle()
+                    currentPost.getPostId() + ". " + currentPost.getTitle()
             );
         }
     }
@@ -66,7 +66,8 @@ public class PostView {
         if (!readPost.getComments().isEmpty()){
             System.out.println("댓글: ");
                 for (Comment comment : readPost.getComments()) {
-                    System.out.println(comment.getAuthor() + ": " + comment.getContent());
+                    System.out.println(comment.getAuthor() + ": " + comment.getContent()
+                    + "좋아요: " + comment.getLikes());
             }
         }
     }
@@ -75,9 +76,9 @@ public class PostView {
         System.out.println(s);
     }
 
-    public int readPostNumber() {
+    public long readPostNumber() {
         System.out.println("게시글 번호를 입력하세요: ");
-        return Integer.parseInt(scanner.nextLine()) - 1;
+        return Long.parseLong(scanner.nextLine());
     }
 
     // 게시물 카테고리를 선택할 수 있게 한다.

@@ -1,6 +1,7 @@
 package org.sopt;
 
 
+import org.sopt.post.application.PostIdGenerator;
 import org.sopt.post.application.PostService;
 import org.sopt.post.domain.PostRepository;
 import org.sopt.post.infrastructure.InMemoryPostRepository;
@@ -11,7 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
         PostRepository postRepository = new InMemoryPostRepository();
-        PostService postService = new PostService(postRepository);
+        PostIdGenerator postIdGenerator = new PostIdGenerator();
+
+        PostService postService = new PostService(postRepository, postIdGenerator);
         PostView postView = new PostView();
 
         PostController postController = new PostController(postView, postService);

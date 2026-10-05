@@ -63,27 +63,27 @@ public class PostController {
     
     // 게시글 단건 조회
     public void getPost() {
-        int index = postView.readPostNumber();
-        Post post = postService.getPost(index);
+        long postId = postView.readPostNumber();
+        Post post = postService.getPost(postId);
         postView.getPostView(post);
     }
 
     // 게시글 수정 메서드. 제목과 본문을 수정할 수 있다.
     public void updatePost() {
-        int index = postView.readPostNumber();
+        long postId = postView.readPostNumber();
         // 수정할 값을 묻기 전에 게시글 존재 여부 먼저 확인
-        postService.getPost(index);
+        postService.getPost(postId);
 
         String title = postView.readTitle();
         String content = postView.readContent();
-        postService.updatePost(index, title, content);
+        postService.updatePost(postId, title, content);
         postView.printMessage("게시물 수정완료~~~!");
     }
 
     //게시글 삭제
     public void deletePost() {
-        int index = postView.readPostNumber();
-        postService.deletePost(index);
+        long postId = postView.readPostNumber();
+        postService.deletePost(postId);
         postView.printMessage("게시물 영구적으로 삭제됨. 복구못해요");
     }
 //

@@ -6,21 +6,26 @@ import java.util.List;
 
 // 제목·본문·카테고리 규칙 보장, 자신의 상태 변경
 public class Post {
+    private final long postId;
     private final Category category; // 카테고리는 수정 불가하다.
     private String title;
     private String content;
     private int likes;
     private final List<Comment> comments = new ArrayList<>();
 
-    public Post(String title, String content, Category category) {
+    public Post(long postId, String title, String content, Category category) {
         validateTitleAndContent(title, content);
         validateCategory(category);
 
+        this.postId = postId;
         this.category = category;
         this.title = title;
         this.content = content;
         this.likes = 0;
 
+    }
+    public long getPostId() {
+        return postId;
     }
     public Category getCategory() {
         return category;

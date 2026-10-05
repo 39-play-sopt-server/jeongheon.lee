@@ -10,16 +10,18 @@ import java.util.List;
 // 게시글 작성·조회·수정·삭제의 순서 조율 담당
 public class PostService {
     private final PostRepository repository;
+    private final PostIdGenerator postIdGenerator;
 
     // 생성자
-    public PostService(PostRepository repository) {
+    public PostService(PostRepository repository, PostIdGenerator postIdGenerator) {
         this.repository = repository;
+        this.postIdGenerator = postIdGenerator;
     }
 
     // Post를 생성하고 저장소에 보관함.
     // 빈 제목·본문 검사(도메인 규칙)는 Post가 수행함
     public void createPost(String title, String content, Category category) {
-        Post post = new Post(title, content, category);
+        Post post = new Post(postIdGenerator.nextId(), title, content, category);
         repository.save(post);
     }
 
@@ -29,25 +31,21 @@ public class PostService {
     }
 
     // 게시물 조회, 해당 번호의 게시글이 있는지 확인함.
-    public Post getPost(int index) {
-        List<Post> posts = repository.findAll();
-
-        if (index < 0 || index >= posts.size()) {
-            throw new PostNotFoundException("존재하지 않는 게시글입니다.");
-        }
-        return posts.get(index);
+    public Post getPost(long postId) {
+            return repository.findById(postId).orElseThrow(()
+                    -> new PostNotFoundException("그 게시물은 없어요;;"));
     }
 
     // 게시글을 찾고 수정 규칙의 실행을 Post(애그리거트)에 맡김
-    public void updatePost(int index, String title, String content) {
-        Post post = getPost(index);
+    public void updatePost(long postId, String title, String content) {
+        Post post = getPost(postId);
         post.update(title, content);
 
     }
 
     // 게시글을 찾고 저장소에 제거를 요청
-    public void deletePost(int index) {
-        Post post = getPost(index);
+    public void deletePost(long postId) {
+        Post post = getPost(postId);
         repository.delete(post);
     }
 }
