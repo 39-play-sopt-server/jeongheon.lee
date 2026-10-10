@@ -3,11 +3,13 @@ package org.sopt.post.presentation;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Comment;
 import org.sopt.post.domain.Post;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Scanner;
 
 // 콘솔 입력과 출력 담당
+@Component
 public class PostView {
 
     Scanner scanner = new Scanner(System.in);

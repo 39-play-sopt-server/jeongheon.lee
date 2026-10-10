@@ -2,11 +2,13 @@ package org.sopt.post.infrastructure;
 
 import org.sopt.post.domain.Post;
 import org.sopt.post.domain.PostRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class InMemoryPostRepository implements PostRepository {
     private final HashMap<Long, Post> posts = new HashMap<>();
 
