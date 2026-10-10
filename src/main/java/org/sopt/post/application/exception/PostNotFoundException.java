@@ -1,0 +1,7 @@
+package org.sopt.post.application.exception;
+
+public class PostNotFoundException extends RuntimeException {
+    public PostNotFoundException(String message) {
+        super(message);
+    }
+}
