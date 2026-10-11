@@ -4,10 +4,12 @@ import org.sopt.post.application.exception.PostNotFoundException;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
 import org.sopt.post.domain.PostRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 // 게시글 작성·조회·수정·삭제의 순서 조율 담당
+@Service
 public class PostService {
     private final PostRepository repository;
     private final PostIdGenerator postIdGenerator;
@@ -18,11 +20,12 @@ public class PostService {
         this.postIdGenerator = postIdGenerator;
     }
 
-    // Post를 생성하고 저장소에 보관함.
+    // Post를 생성하고 저장소에 보관 후 반환함
     // 빈 제목·본문 검사(도메인 규칙)는 Post가 수행함
-    public void createPost(String title, String content, Category category) {
+    public Post createPost(String title, String content, Category category) {
         Post post = new Post(postIdGenerator.nextId(), title, content, category);
         repository.save(post);
+        return post;
     }
 
     // 게시물 목록 조회

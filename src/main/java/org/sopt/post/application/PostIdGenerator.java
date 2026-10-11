@@ -1,5 +1,8 @@
 package org.sopt.post.application;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class PostIdGenerator {
     private long generateId;
 
