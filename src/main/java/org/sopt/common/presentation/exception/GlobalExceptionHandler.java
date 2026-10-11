@@ -7,6 +7,7 @@ import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.post.application.exception.PostNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -55,10 +56,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 ? ResponseCode.SERVER_ERROR
                 : ResponseCode.INVALID_REQUEST;
 
+        // 기존 HTTP 상태와 Allow 같은 헤더를 유지하면서 공통 JSON 본문을 반환
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.putAll(headers);
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
         return super.handleExceptionInternal(
                 exception,
                 ApiResponse.of(code, null),
-                headers,
+                responseHeaders,
                 status,
                 request
         );
@@ -66,6 +72,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<ApiResponse<Void>> failure(ResponseCode code) {
         return ResponseEntity.status(code.status())
+                .contentType(MediaType.APPLICATION_JSON) //오류 응답의 Content-Type을 JSON으로 명시
                 .body(ApiResponse.<Void>of(code, null));
     }
 }
