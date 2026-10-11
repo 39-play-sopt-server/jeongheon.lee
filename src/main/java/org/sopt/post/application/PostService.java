@@ -41,6 +41,7 @@ public class PostService {
 
     // 게시글을 찾고 수정 규칙의 실행을 Post(애그리거트)에 맡김
     public void updatePost(long postId, String title, String content) {
+        // 수정할 값을 묻기 전에 게시글 존재 여부 먼저 확인
         Post post = getPost(postId);
         post.update(title, content);
 
