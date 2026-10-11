@@ -11,7 +11,7 @@ public class Post {
     private String title;
     private String content;
     private long viewCount = 0L;
-    private int likes;
+//    private int likes;
     private final List<Comment> comments = new ArrayList<>();
 
     public Post(long postId, String title, String content, Category category) {
@@ -22,7 +22,7 @@ public class Post {
         this.category = category;
         this.title = title;
         this.content = content;
-        this.likes = 0;
+//        this.likes = 0;
 
     }
     public long getPostId() {
@@ -44,9 +44,9 @@ public class Post {
         return viewCount;
     }
 
-    public int getLikes() {
-        return likes;
-    }
+//    public int getLikes() {
+//        return likes;
+//    }
 
     // 원본 List객체를 반환하지 않도록 copy해서 반환함
     public List<Comment> getComments() {
