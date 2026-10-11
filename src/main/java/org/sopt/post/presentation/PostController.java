@@ -3,6 +3,7 @@ package org.sopt.post.presentation;
 import org.sopt.common.presentation.code.ResponseCode;
 import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.post.application.PostService;
+import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.domain.Post;
 import org.sopt.post.presentation.dto.CreatePostRequest;
 import org.sopt.post.presentation.dto.PostResponse;
@@ -30,7 +31,7 @@ public class PostController {
             @RequestBody CreatePostRequest request
     ) {
         // 게시글 생성
-        Post post = postService.createPost(
+        PostResult post = postService.createPost(
                 request.title(),
                 request.content(),
                 request.category()
@@ -49,7 +50,7 @@ public class PostController {
     // 게시글 목록 조회
     @GetMapping
     public ResponseEntity<ApiResponse<List<PostResponse>>> getPosts() {
-        List<Post> posts = postService.getPosts();
+        List<PostResult> posts = postService.getPosts();
         List<PostResponse> responses = posts.stream() //posts의 게시글을 하나씩 처리할 수 있는 스트림을 만들어서
                 .map(PostResponse::from) //각 게시글에 PostResponse.from(post)를 호출해 DTO로 변환한 후
                 // (::는 메서드 참조 문법으로, .map(post -> PostResponse.from(post)) 과 같은 의미에요! 참고하삽쇼)
@@ -66,7 +67,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponse>> getPost(
             @PathVariable long postId
     ) {
-        Post post = postService.getPost(postId);
+        PostResult post = postService.getPostDetail(postId);
 
         ResponseCode code = ResponseCode.POST_FOUND;
         PostResponse response = PostResponse.from(post);

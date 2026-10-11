@@ -1,5 +1,6 @@
 package org.sopt.post.presentation.dto;
 
+import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
 
@@ -7,14 +8,16 @@ public record PostResponse(
         long id,
         String title,
         String content,
-        Category category
+        Category category,
+        long viewCount
 ) {
-    public static PostResponse from(Post post) {
+    public static PostResponse from(PostResult result) {
         return new PostResponse(
-                post.getPostId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCategory()
+                result.id(),
+                result.title(),
+                result.content(),
+                result.category(),
+                result.viewCount()
         );
     }
 }

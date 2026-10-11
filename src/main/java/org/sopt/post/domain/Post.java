@@ -11,7 +11,7 @@ public class Post {
     private String title;
     private String content;
     private long viewCount = 0L;
-//    private int likes;
+//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
     private final List<Comment> comments = new ArrayList<>();
 
     public Post(long postId, String title, String content, Category category) {
