@@ -10,6 +10,7 @@ public class Post {
     private final Category category; // 카테고리는 수정 불가하다.
     private String title;
     private String content;
+    private long viewCount = 0L;
     private int likes;
     private final List<Comment> comments = new ArrayList<>();
 
@@ -39,6 +40,10 @@ public class Post {
         return content;
     }
 
+    public long getViewCount() {
+        return viewCount;
+    }
+
     public int getLikes() {
         return likes;
     }
@@ -56,6 +61,11 @@ public class Post {
         }
 
         comments.add(comment);
+    }
+
+    // 조회수 증가
+    public void increaseViewCount() {
+        viewCount++;
     }
 
     // 게시물을 업데이트한다.
