@@ -1,12 +1,6 @@
 package org.sopt;
 
 
-import org.sopt.post.application.PostIdGenerator;
-import org.sopt.post.application.PostService;
-import org.sopt.post.domain.PostRepository;
-import org.sopt.post.infrastructure.InMemoryPostRepository;
-import org.sopt.post.presentation.PostController;
-import org.sopt.post.presentation.PostView;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
