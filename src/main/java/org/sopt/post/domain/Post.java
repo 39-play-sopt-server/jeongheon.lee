@@ -23,10 +23,6 @@ public class Post {
 
     private long viewCount = 0L;
 
-//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
-
-//    private List<Comment> comments = new ArrayList<>();
-
     protected Post() {}
 
     public Post(String title, String content, Category category) {
@@ -36,7 +32,6 @@ public class Post {
         this.category = category;
         this.title = title;
         this.content = content;
-//        this.likes = 0;
 
     }
     public long getPostId() {
@@ -57,25 +52,6 @@ public class Post {
     public long getViewCount() {
         return viewCount;
     }
-
-//    public int getLikes() {
-//        return likes;
-//    }
-
-    // 원본 List객체를 반환하지 않도록 copy해서 반환함
-//    public List<Comment> getComments() {
-//        return List.copyOf(comments);
-//    }
-
-    // 댓글 추가 기능
-//    public void addComment(Comment comment) {
-//        // 아무 내용 없는 댓글은 작성 불가
-//        if (comment == null) {
-//            throw new IllegalArgumentException("댓글이 필요합니다.");
-//        }
-//
-//        comments.add(comment);
-//    }
 
     // 조회수 증가
     public void increaseViewCount() {
