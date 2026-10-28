@@ -10,7 +10,8 @@ public class Post {
     private final Category category; // 카테고리는 수정 불가하다.
     private String title;
     private String content;
-    private int likes;
+    private long viewCount = 0L;
+//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
     private final List<Comment> comments = new ArrayList<>();
 
     public Post(long postId, String title, String content, Category category) {
@@ -21,7 +22,7 @@ public class Post {
         this.category = category;
         this.title = title;
         this.content = content;
-        this.likes = 0;
+//        this.likes = 0;
 
     }
     public long getPostId() {
@@ -39,9 +40,13 @@ public class Post {
         return content;
     }
 
-    public int getLikes() {
-        return likes;
+    public long getViewCount() {
+        return viewCount;
     }
+
+//    public int getLikes() {
+//        return likes;
+//    }
 
     // 원본 List객체를 반환하지 않도록 copy해서 반환함
     public List<Comment> getComments() {
@@ -56,6 +61,11 @@ public class Post {
         }
 
         comments.add(comment);
+    }
+
+    // 조회수 증가
+    public void increaseViewCount() {
+        viewCount++;
     }
 
     // 게시물을 업데이트한다.
