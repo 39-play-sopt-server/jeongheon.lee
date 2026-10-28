@@ -13,13 +13,12 @@ import java.util.List;
 @Service
 public class PostService {
     private final PostRepository repository;
-    private final PostIdGenerator postIdGenerator;
+//    private final PostIdGenerator postIdGenerator;
     private final Object postLock = new Object(); // 하나의 공유 락
 
     // 생성자
-    public PostService(PostRepository repository, PostIdGenerator postIdGenerator) {
+    public PostService(PostRepository repository) {
         this.repository = repository;
-        this.postIdGenerator = postIdGenerator;
     }
 
     // Post를 생성하고 저장소에 보관 후 반환함
@@ -31,7 +30,7 @@ public class PostService {
     ) {
 //        synchronized는 같은 락을 사용하는 코드 구간을 한 번에 하나의 스레드만 실행하게 하는 Java 문법
         synchronized (postLock) {
-            Post post = new Post(postIdGenerator.nextId(), title, content, category);
+            Post post = new Post(title, content, category);
             repository.save(post);
             return PostResult.from(post);
         }

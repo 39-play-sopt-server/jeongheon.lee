@@ -1,24 +1,38 @@
 package org.sopt.post.domain;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 // 제목·본문·카테고리 규칙 보장, 자신의 상태 변경
+@Entity
 public class Post {
-    private final long postId;
-    private final Category category; // 카테고리는 수정 불가하다.
-    private String title;
-    private String content;
-    private long viewCount = 0L;
-//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
-    private final List<Comment> comments = new ArrayList<>();
 
-    public Post(long postId, String title, String content, Category category) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long postId;
+
+    @Enumerated(EnumType.STRING)
+    private Category category; // 카테고리는 수정 불가하다.
+
+    private String title;
+
+    private String content;
+
+    private long viewCount = 0L;
+
+//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
+
+//    private List<Comment> comments = new ArrayList<>();
+
+    protected Post() {}
+
+    public Post(String title, String content, Category category) {
         validateTitleAndContent(title, content);
         validateCategory(category);
 
-        this.postId = postId;
         this.category = category;
         this.title = title;
         this.content = content;
@@ -49,19 +63,19 @@ public class Post {
 //    }
 
     // 원본 List객체를 반환하지 않도록 copy해서 반환함
-    public List<Comment> getComments() {
-        return List.copyOf(comments);
-    }
+//    public List<Comment> getComments() {
+//        return List.copyOf(comments);
+//    }
 
     // 댓글 추가 기능
-    public void addComment(Comment comment) {
-        // 아무 내용 없는 댓글은 작성 불가
-        if (comment == null) {
-            throw new IllegalArgumentException("댓글이 필요합니다.");
-        }
-
-        comments.add(comment);
-    }
+//    public void addComment(Comment comment) {
+//        // 아무 내용 없는 댓글은 작성 불가
+//        if (comment == null) {
+//            throw new IllegalArgumentException("댓글이 필요합니다.");
+//        }
+//
+//        comments.add(comment);
+//    }
 
     // 조회수 증가
     public void increaseViewCount() {
