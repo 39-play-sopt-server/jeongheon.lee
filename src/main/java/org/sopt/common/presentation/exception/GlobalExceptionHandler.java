@@ -4,6 +4,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.sopt.common.presentation.code.ResponseCode;
 import org.sopt.common.presentation.response.ApiResponse;
+import org.sopt.member.application.exception.MemberNotFoundException;
 import org.sopt.post.application.exception.PostNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -24,6 +25,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             PostNotFoundException exception // 실제로 발생한 예외 객체를 받음
     ) {
         return failure(ResponseCode.POST_NOT_FOUND); // 선택한 오류 코드로 HTTP 응답을 만드는 보조 메서드를 호출
+    }
+
+    //
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMemberNotFound(
+            MemberNotFoundException exception
+    ) {
+        return failure(ResponseCode.MEMBER_NOT_FOUND);
     }
 
     // Post 애그리거트에 있는 "제목은 비어 있을 수 없다"라는 도메인 규칙 검증 실패를 400으로 변환

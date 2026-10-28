@@ -12,7 +12,13 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id", nullable = false)
     private long postId;
+
+    // Id를 통한 참조 -> 회원 정보가 필요하면 응용 서비스에서 해당 ID로 조회
+    // 모든 게시글이 작성자로 member를 참조해야 한다는 요구사항은 코드에서 반영
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
     @Enumerated(EnumType.STRING)
     private Category category; // 카테고리는 수정 불가하다.
@@ -21,14 +27,15 @@ public class Post {
 
     private String content;
 
-    private long viewCount = 0L;
+    private int viewCount = 0;
 
     protected Post() {}
 
-    public Post(String title, String content, Category category) {
+    public Post(Long memberId, String title, String content, Category category) {
         validateTitleAndContent(title, content);
         validateCategory(category);
 
+        this.memberId = memberId;
         this.category = category;
         this.title = title;
         this.content = content;
@@ -49,7 +56,7 @@ public class Post {
         return content;
     }
 
-    public long getViewCount() {
+    public int getViewCount() {
         return viewCount;
     }
 
@@ -85,4 +92,6 @@ public class Post {
             throw new IllegalArgumentException("카테고리는 반드시 선택해야 합니다.");
         }
     }
+
+    // 게시글 조회 시 작성자 이름이 표시되어야 한다.
 }

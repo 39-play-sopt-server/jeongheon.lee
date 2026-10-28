@@ -40,6 +40,7 @@ public class PostController implements PostApi {
     ) {
         // 게시글 생성
         PostResult post = postService.createPost(
+                request.memberId(),
                 request.title(),
                 request.content(),
                 request.category()

@@ -1,5 +1,7 @@
 package org.sopt.post.application;
 
+import org.sopt.member.domain.MemberRepository;
+import org.sopt.member.application.exception.MemberNotFoundException;
 import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.application.exception.PostNotFoundException;
 import org.sopt.post.domain.Category;
@@ -13,24 +15,28 @@ import java.util.List;
 @Service
 public class PostService {
     private final PostRepository repository;
-//    private final PostIdGenerator postIdGenerator;
+    private final MemberRepository memberRepository;
     private final Object postLock = new Object(); // 하나의 공유 락
 
     // 생성자
-    public PostService(PostRepository repository) {
+    public PostService(PostRepository repository, MemberRepository memberRepository) {
         this.repository = repository;
+        this.memberRepository = memberRepository;
     }
 
     // Post를 생성하고 저장소에 보관 후 반환함
     // 빈 제목·본문 검사(도메인 규칙)는 Post가 수행함
     public PostResult createPost(
+            Long memberId,
             String title,
             String content,
             Category category
     ) {
 //        synchronized는 같은 락을 사용하는 코드 구간을 한 번에 하나의 스레드만 실행하게 하는 Java 문법
         synchronized (postLock) {
-            Post post = new Post(title, content, category);
+            memberRepository.findById(memberId)
+                    .orElseThrow(() -> new MemberNotFoundException("회원을 찾을 수 없습니다!"));
+            Post post = new Post(memberId, title, content, category);
             repository.save(post);
             return PostResult.from(post);
         }
