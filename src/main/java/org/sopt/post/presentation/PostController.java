@@ -6,6 +6,7 @@ import org.sopt.post.application.PostService;
 import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.presentation.docs.PostApi;
 import org.sopt.post.presentation.dto.CreatePostRequest;
+import org.sopt.post.presentation.dto.PostPageResponse;
 import org.sopt.post.presentation.dto.PostResponse;
 import org.sopt.post.presentation.dto.UpdatePostRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
 
 // 메뉴에 따라 입력받고 서비스를 호출한 뒤 결과·예외를 안내해주는 역할
 @RestController
@@ -40,6 +39,7 @@ public class PostController implements PostApi {
     ) {
         // 게시글 생성
         PostResult post = postService.createPost(
+                request.memberId(),
                 request.title(),
                 request.content(),
                 request.category()
@@ -55,20 +55,20 @@ public class PostController implements PostApi {
                 .body(ApiResponse.of(code, response));
     }
 
-    // 게시글 목록 조회
+    // 게시글 목록 조회. URL의 ?page=0&size=10 같은 쿼리 파라미터로 조회할 범위를 전달받음
     @Override
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostResponse>>> getPosts() {
-        List<PostResult> posts = postService.getPosts();
-        List<PostResponse> responses = posts.stream() //posts의 게시글을 하나씩 처리할 수 있는 스트림을 만들어서
-                .map(PostResponse::from) //각 게시글에 PostResponse.from(post)를 호출해 DTO로 변환한 후
-                // (::는 메서드 참조 문법으로, .map(post -> PostResponse.from(post)) 과 같은 의미에요! 참고하삽쇼)
-                .toList(); // 변환한 DTO들을 모아서 List<PostResponse>로 반환
+    public ResponseEntity<ApiResponse<PostPageResponse>> getPosts(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        // 서비스가 반환한 게시글과 페이지 정보를 API 응답 DTO로 변환
+        PostPageResponse response = PostPageResponse.from(postService.getPosts(page, size));
 
         ResponseCode code = ResponseCode.POST_LIST_FOUND;
 
         return ResponseEntity.status(code.status())
-                .body(ApiResponse.of(code, responses));
+                .body(ApiResponse.of(code, response));
     }
     
     // 게시글 단건 조회

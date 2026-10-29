@@ -1,28 +1,45 @@
 package org.sopt.post.domain;
 
+import jakarta.persistence.*;
+import org.sopt.common.domain.BaseEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 // 제목·본문·카테고리 규칙 보장, 자신의 상태 변경
-public class Post {
-    private final long postId;
-    private final Category category; // 카테고리는 수정 불가하다.
-    private String title;
-    private String content;
-    private long viewCount = 0L;
-//    private int likes; // TODO: 추후 좋아요 기능 구현할 시 주석해제
-    private final List<Comment> comments = new ArrayList<>();
+@Entity
+public class Post extends BaseEntity {
 
-    public Post(long postId, String title, String content, Category category) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id", nullable = false)
+    private long postId;
+
+    // Id를 통한 참조 -> 회원 정보가 필요하면 응용 서비스에서 해당 ID로 조회
+    // 모든 게시글이 작성자로 member를 참조해야 한다는 요구사항은 코드에서 반영
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
+
+    @Enumerated(EnumType.STRING)
+    private Category category; // 카테고리는 수정 불가하다.
+
+    private String title;
+
+    private String content;
+
+    private int viewCount = 0;
+
+    protected Post() {}
+
+    public Post(Long memberId, String title, String content, Category category) {
         validateTitleAndContent(title, content);
         validateCategory(category);
 
-        this.postId = postId;
+        this.memberId = memberId;
         this.category = category;
         this.title = title;
         this.content = content;
-//        this.likes = 0;
 
     }
     public long getPostId() {
@@ -40,27 +57,12 @@ public class Post {
         return content;
     }
 
-    public long getViewCount() {
+    public int getViewCount() {
         return viewCount;
     }
 
-//    public int getLikes() {
-//        return likes;
-//    }
-
-    // 원본 List객체를 반환하지 않도록 copy해서 반환함
-    public List<Comment> getComments() {
-        return List.copyOf(comments);
-    }
-
-    // 댓글 추가 기능
-    public void addComment(Comment comment) {
-        // 아무 내용 없는 댓글은 작성 불가
-        if (comment == null) {
-            throw new IllegalArgumentException("댓글이 필요합니다.");
-        }
-
-        comments.add(comment);
+    public Long getMemberId() {
+        return memberId;
     }
 
     // 조회수 증가
@@ -95,4 +97,6 @@ public class Post {
             throw new IllegalArgumentException("카테고리는 반드시 선택해야 합니다.");
         }
     }
+
+    // 게시글 조회 시 작성자 이름이 표시되어야 한다.
 }
