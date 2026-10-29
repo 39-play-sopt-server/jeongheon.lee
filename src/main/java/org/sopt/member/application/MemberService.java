@@ -27,10 +27,10 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(long id) {
-        memberRepository.findById(id).orElseThrow(() ->
-                        new MemberNotFoundException("회원을 찾을 수 없습니다."));
+        Member member = memberRepository.findById(id).orElseThrow(() ->
+                new MemberNotFoundException("회원을 찾을 수 없습니다."));
 
-        memberRepository.deleteById(id);
+        member.withdraw();
     }
 
 }

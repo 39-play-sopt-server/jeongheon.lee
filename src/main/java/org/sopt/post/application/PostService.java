@@ -1,5 +1,7 @@
 package org.sopt.post.application;
 
+import org.sopt.member.application.exception.WithdrawnMemberException;
+import org.sopt.member.domain.Member;
 import org.sopt.member.domain.MemberRepository;
 import org.sopt.member.application.exception.MemberNotFoundException;
 import org.sopt.post.application.dto.PostResult;
@@ -34,8 +36,13 @@ public class PostService {
     ) {
 //        synchronized는 같은 락을 사용하는 코드 구간을 한 번에 하나의 스레드만 실행하게 하는 Java 문법
         synchronized (postLock) {
-            memberRepository.findById(memberId)
+            Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new MemberNotFoundException("회원을 찾을 수 없습니다!"));
+
+            if (member.isWithdrawn()) {
+                throw new WithdrawnMemberException("탈퇴한 회원은 게시글을 작성할 수 없습니다.");
+            }
+
             Post post = new Post(memberId, title, content, category);
             repository.save(post);
             return PostResult.from(post);

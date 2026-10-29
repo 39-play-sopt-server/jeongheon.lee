@@ -19,6 +19,10 @@ public class Member extends BaseEntity {
     @Column(name = "member_phone_number", nullable = false)
     private String memberPhoneNumber;
 
+    // 논리 삭제 방식을 위한 컬럼
+    @Column(nullable = false)
+    private boolean withdrawn = false;
+
     public Member(String memberName, String memberPhoneNumber) {
         validateMemberName(memberName);
         validateMemberPhoneNumber(memberPhoneNumber);
@@ -52,6 +56,14 @@ public class Member extends BaseEntity {
     }
 
     protected Member() {}
+
+    public void withdraw() {
+        this.withdrawn = true;
+    }
+
+    public boolean isWithdrawn() {
+        return withdrawn;
+    }
 
     public long getMemberId() {
         return memberId;
