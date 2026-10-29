@@ -1,6 +1,7 @@
 package org.sopt.post.domain;
 
 import jakarta.persistence.*;
+import org.sopt.common.domain.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 
 // 제목·본문·카테고리 규칙 보장, 자신의 상태 변경
 @Entity
-public class Post {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
