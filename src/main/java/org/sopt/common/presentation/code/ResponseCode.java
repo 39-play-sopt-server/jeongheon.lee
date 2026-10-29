@@ -13,7 +13,9 @@ public enum ResponseCode {
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "요청이 올바르지 않습니다."),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_ERROR", "서버 오류가 발생했습니다."),
 
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "회원을 찾을 수 없습니다");
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "회원을 찾을 수 없습니다"),
+    MEMBER_CREATED(HttpStatus.CREATED, "MEMBER_CREATED", "회원가입 성공"),
+    MEMBER_DELETED(HttpStatus.OK, "MEMBER_DELETED", "회원 삭제 성공");
 
     private final HttpStatus status;
     private final String code;
