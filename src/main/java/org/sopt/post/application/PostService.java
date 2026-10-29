@@ -9,6 +9,9 @@ import org.sopt.post.application.exception.PostNotFoundException;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
 import org.sopt.post.domain.PostRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,33 +54,42 @@ public class PostService {
         }
     }
 
-    // 게시물 목록 조회
-    public List<PostResult> getPosts() {
-        synchronized (postLock) {
-            List<Post> posts = repository.findAll();
-            if (posts.isEmpty()) {
-                return List.of();
-            }
+    // 게시물 목록 조회. 페이지 번호와 크기를 받아 해당 페이지의 게시글만 반환
+    public Page<PostResult> getPosts(int page, int size) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException("페이지는 0 이상, 크기는 1~100이어야 합니다.");
+        }
 
-            // 같은 작성자의 게시글이 여러 개 있어도 회원은 한 번에 조회
+        synchronized (postLock) {
+            // PageRequest에 조회할 페이지 번호, 한 페이지의 개수, 정렬 기준을 담음
+            // 생성일 기준 최신순으로 정렬하고, 생성일이 같으면 게시글 ID가 큰 글을 먼저 조회
+            PageRequest pageRequest = PageRequest.of(page, size,
+                    Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("postId")));
+            // Page는 현재 페이지의 게시글뿐 아니라 전체 개수와 전체 페이지 수 등의 정보도 가짐
+            Page<Post> posts = repository.findAll(pageRequest);
+
+            // 현재 페이지의 게시글에서 작성자 ID만 꺼내고, 같은 작성자의 ID는 중복 제거
             List<Long> memberIds = posts.stream()
                     .map(Post::getMemberId)
                     .distinct()
                     .toList();
 
-            Map<Long, Member> authorById = memberRepository.findAllByMemberIdIn(memberIds)
-                    .stream()
+            // 게시글이 없으면 회원 조회를 생략하고, 있으면 ID 목록으로 작성자를 한 번에 조회
+            // 탈퇴한 회원의 글도 보여줘야 하므로 탈퇴 여부로 회원을 걸러내지는 않음
+            List<Member> authors = memberIds.isEmpty()
+                    ? List.of()
+                    : memberRepository.findAllByMemberIdIn(memberIds);
+            // 회원 ID를 key, 회원 객체를 value로 저장해서 게시글의 작성자를 바로 찾을 수 있게 함
+            Map<Long, Member> authorById = authors.stream()
                     .collect(Collectors.toMap(Member::getMemberId, member -> member));
 
-            return posts.stream()
-                    .map(post -> {
-                        Member author = authorById.get(post.getMemberId());
-                        if (author == null) {
-                            throw new MemberNotFoundException("게시글 작성자를 찾을 수 없습니다.");
-                        }
-                        return PostResult.from(post, author);
-                    })
-                    .toList();
+            return posts.map(post -> {
+                Member author = authorById.get(post.getMemberId());
+                if (author == null) {
+                    throw new MemberNotFoundException("게시글 작성자를 찾을 수 없습니다.");
+                }
+                return PostResult.from(post, author);
+            });
         }
     }
 

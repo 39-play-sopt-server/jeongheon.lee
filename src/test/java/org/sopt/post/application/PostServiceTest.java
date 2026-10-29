@@ -9,6 +9,13 @@ import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
 import org.sopt.post.domain.PostRepository;
 import org.sopt.post.presentation.dto.PostResponse;
+import org.sopt.post.presentation.dto.PostPageResponse;
+import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
@@ -74,29 +81,59 @@ class PostServiceTest {
         Member first = member(1L, "첫 작성자");
         Member second = member(2L, "둘째 작성자");
         second.withdraw();
-        when(postRepository.findAll()).thenReturn(
-                List.of(post(10L, 1L), post(20L, 2L), post(30L, 1L)));
+        when(postRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(post(10L, 1L), post(20L, 2L), post(30L, 1L)),
+                PageRequest.of(0, 3), 7));
         when(memberRepository.findAllByMemberIdIn(List.of(1L, 2L)))
                 .thenReturn(List.of(second, first));
 
-        List<PostResponse> responses = postService.getPosts().stream()
-                .map(PostResponse::from)
-                .toList();
+        Page<PostResult> results = postService.getPosts(0, 3);
+        PostPageResponse response = PostPageResponse.from(results);
+        List<PostResponse> responses = response.content();
 
         assertEquals(List.of(10L, 20L, 30L), responses.stream().map(PostResponse::id).toList());
         assertEquals(List.of("첫 작성자", "탈퇴한 회원", "첫 작성자"),
                 responses.stream().map(PostResponse::authorName).toList());
         verify(memberRepository).findAllByMemberIdIn(List.of(1L, 2L));
         verify(memberRepository, never()).findById(anyLong());
+
+        assertEquals(0, response.page());
+        assertEquals(3, response.size());
+        assertEquals(7L, response.totalElements());
+        assertEquals(3, response.totalPages());
+        assertTrue(response.hasNext());
+
+        ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
+        verify(postRepository).findAll(pageable.capture());
+        assertEquals(0, pageable.getValue().getPageNumber());
+        assertEquals(3, pageable.getValue().getPageSize());
+        assertEquals(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("postId")),
+                pageable.getValue().getSort());
     }
 
     @Test
-    void emptyPostsDoNotQueryMembers() {
-        when(postRepository.findAll()).thenReturn(List.of());
+    void emptyPagePreservesTotalsWithoutQueryingMembers() {
+        when(postRepository.findAll(any(Pageable.class))).thenReturn(
+                new PageImpl<>(List.of(), PageRequest.of(3, 10), 25));
 
-        assertTrue(postService.getPosts().isEmpty());
+        PostPageResponse response = PostPageResponse.from(postService.getPosts(3, 10));
+
+        assertTrue(response.content().isEmpty());
+        assertEquals(3, response.page());
+        assertEquals(25L, response.totalElements());
+        assertEquals(3, response.totalPages());
+        assertFalse(response.hasNext());
 
         verifyNoInteractions(memberRepository);
+    }
+
+    @Test
+    void invalidPaginationDoesNotQueryRepositories() {
+        assertThrows(IllegalArgumentException.class, () -> postService.getPosts(-1, 10));
+        assertThrows(IllegalArgumentException.class, () -> postService.getPosts(0, 0));
+        assertThrows(IllegalArgumentException.class, () -> postService.getPosts(0, 101));
+
+        verifyNoInteractions(postRepository, memberRepository);
     }
 
     private Member member(long id, String name) {
