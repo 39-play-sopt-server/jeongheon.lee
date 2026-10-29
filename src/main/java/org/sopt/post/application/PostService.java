@@ -12,6 +12,8 @@ import org.sopt.post.domain.PostRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 // 게시글 작성·조회·수정·삭제의 순서 조율 담당
 @Service
@@ -44,8 +46,8 @@ public class PostService {
             }
 
             Post post = new Post(memberId, title, content, category);
-            repository.save(post);
-            return PostResult.from(post);
+            Post savedPost = repository.save(post);
+            return PostResult.from(savedPost, member);
         }
     }
 
@@ -53,7 +55,29 @@ public class PostService {
     public List<PostResult> getPosts() {
         synchronized (postLock) {
             List<Post> posts = repository.findAll();
-            return posts.stream().map(PostResult::from).toList();
+            if (posts.isEmpty()) {
+                return List.of();
+            }
+
+            // 같은 작성자의 게시글이 여러 개 있어도 회원은 한 번에 조회
+            List<Long> memberIds = posts.stream()
+                    .map(Post::getMemberId)
+                    .distinct()
+                    .toList();
+
+            Map<Long, Member> authorById = memberRepository.findAllByMemberIdIn(memberIds)
+                    .stream()
+                    .collect(Collectors.toMap(Member::getMemberId, member -> member));
+
+            return posts.stream()
+                    .map(post -> {
+                        Member author = authorById.get(post.getMemberId());
+                        if (author == null) {
+                            throw new MemberNotFoundException("게시글 작성자를 찾을 수 없습니다.");
+                        }
+                        return PostResult.from(post, author);
+                    })
+                    .toList();
         }
     }
 
@@ -62,10 +86,13 @@ public class PostService {
         synchronized (postLock) {
             Post post = findPostOrThrow(postId);
 
+            Member author = memberRepository.findById(post.getMemberId())
+                    .orElseThrow(() -> new MemberNotFoundException("작성자를 찾을 수 없습니다."));
+
             post.increaseViewCount();
             repository.save(post);
 
-            return PostResult.from(post);
+            return PostResult.from(post, author);
         }
     }
 

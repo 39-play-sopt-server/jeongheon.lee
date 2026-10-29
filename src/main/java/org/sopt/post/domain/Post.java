@@ -61,6 +61,10 @@ public class Post extends BaseEntity {
         return viewCount;
     }
 
+    public Long getMemberId() {
+        return memberId;
+    }
+
     // 조회수 증가
     public void increaseViewCount() {
         viewCount++;

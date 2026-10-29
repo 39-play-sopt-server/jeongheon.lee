@@ -1,9 +1,7 @@
 package org.sopt.post.presentation.dto;
 
-import org.sopt.member.domain.Member;
 import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.domain.Category;
-import org.sopt.post.domain.Post;
 
 public record PostResponse(
         long id,
@@ -14,15 +12,15 @@ public record PostResponse(
         String authorName,
         boolean authorWithdrawn
 ) {
-    public static PostResponse from(PostResult result, Member author) {
+    public static PostResponse from(PostResult result) {
         return new PostResponse(
                 result.id(),
                 result.title(),
                 result.content(),
                 result.category(),
                 result.viewCount(),
-                author.getMemberName(),
-                author.isWithdrawn()
+                result.authorWithdrawn() ? "탈퇴한 회원" : result.authorName(),
+                result.authorWithdrawn()
         );
     }
 }

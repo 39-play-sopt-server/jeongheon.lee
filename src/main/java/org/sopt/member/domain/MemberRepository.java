@@ -11,6 +11,8 @@ public interface MemberRepository extends Repository<Member, Long> {
 
     Optional<Member> findById(Long memberId);
 
+    List<Member> findAllByMemberIdIn(List<Long> memberIds);
+
     void deleteById(Long memberId);
 
     List<Member> getMemberByMemberId(long memberId);
