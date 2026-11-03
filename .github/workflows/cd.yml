@@ -53,6 +53,15 @@ jobs:
 
             # 2. 코드 갱신·빌드: CI가 통과한 커밋으로 JAR을 만듭니다.
             cd "$PROJECT_PATH" # EC2에 이미 clone한 프로젝트로 이동합니다.
+            # 최초 전환용: EC2에서 수동 작성한 미추적 설정은 덮어쓰지 않고 백업합니다.
+            if [ -f src/main/resources/application.yml ] && ! git ls-files --error-unmatch src/main/resources/application.yml >/dev/null 2>&1; then
+              mkdir -p "$HOME/loovi"
+              backup="$HOME/loovi/application-before-cd-$DEPLOY_SHA.yml"
+              test ! -e "$backup"
+              install -m 600 src/main/resources/application.yml "$backup"
+              rm src/main/resources/application.yml
+              echo "기존 설정 백업: $backup"
+            fi
             git fetch origin "$DEPLOY_SHA" # PR의 테스트 커밋도 가져올 수 있도록 SHA를 지정합니다.
             git checkout --detach "$DEPLOY_SHA" # 브랜치가 아닌 CI 통과 커밋을 선택합니다.
             bash ./gradlew clean bootJar --no-daemon # EC2에서 실행 JAR을 만듭니다.
