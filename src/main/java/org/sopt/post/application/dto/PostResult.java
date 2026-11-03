@@ -1,5 +1,6 @@
 package org.sopt.post.application.dto;
 
+import org.sopt.member.domain.Member;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
 
@@ -9,15 +10,19 @@ public record PostResult(
         Category category,
         String title,
         String content,
-        long viewCount
+        long viewCount,
+        String authorName,
+        boolean authorWithdrawn
 ) {
-    public static PostResult from(Post post) {
+    public static PostResult from(Post post, Member author) {
         return new PostResult(
                 post.getPostId(),
                 post.getCategory(),
                 post.getTitle(),
                 post.getContent(),
-                post.getViewCount()
+                post.getViewCount(),
+                author.getMemberName(),
+                author.isWithdrawn()
         );
     }
 

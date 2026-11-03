@@ -5,11 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.post.presentation.dto.CreatePostRequest;
+import org.sopt.post.presentation.dto.PostPageResponse;
 import org.sopt.post.presentation.dto.PostResponse;
 import org.sopt.post.presentation.dto.UpdatePostRequest;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 @Tag(name = "게시글", description = "게시글 생성·조회·수정·삭제 API")
 public interface PostApi {
@@ -19,8 +18,11 @@ public interface PostApi {
             CreatePostRequest request
     );
 
-    @Operation(summary = "게시글 목록 조회")
-    ResponseEntity<ApiResponse<List<PostResponse>>> getPosts();
+    @Operation(summary = "게시글 목록 조회", description = "생성일 최신순으로 조회하며 같은 생성일은 게시글 ID 내림차순으로 정렬합니다.")
+    ResponseEntity<ApiResponse<PostPageResponse>> getPosts(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") int page,
+            @Parameter(description = "페이지 크기 (1~100, 기본값 10)", example = "10") int size
+    );
 
     @Operation(summary = "게시글 상세 조회", description = "조회에 성공하면 조회수가 1 증가합니다.")
     ResponseEntity<ApiResponse<PostResponse>> getPost(
