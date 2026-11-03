@@ -1,0 +1,83 @@
+name: CD
+
+on:
+  push:
+    branches: [main] # main에 코드가 반영되면 CD 시작
+
+permissions:
+  contents: read # CI에서 소스를 읽는 데 사용
+
+concurrency:
+  group: deploy # 같은 EC2에 두 배포가 동시에 실행되지 않도록 조절
+  cancel-in-progress: false # 실행 중인 배포는 중간에 취소하지 않음
+
+# Variables: EC2_HOST, EC2_USER(ubuntu), EC2_PROJECT_PATH(EC2의 clone 절대 경로), CORS_ALLOWED_ORIGINS
+# Secrets: DB_PASSWORD(DB 비밀번호), EC2_SSH_KEY(개인키), EC2_FINGERPRINT(서버 SSH 호스트 키의 SHA256 지문)
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml # 같은 커밋의 CI를 먼저 실행
+
+  deploy:
+    needs: ci # CI가 성공해야 EC2에 접속
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_PATH: ${{ vars.EC2_PROJECT_PATH }} # 예: /home/ubuntu/assignment
+      DEPLOY_SHA: ${{ github.sha }} # CI가 검증한 정확한 커밋
+      CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }} # 실제 프론트엔드 출처이며 배포 시 필수입니다.
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }} # GitHub Secret을 환경변수로 읽습니다.
+    steps:
+      - name: EC2에서 코드 갱신·빌드·실행
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.EC2_HOST }} # EC2 공인 IP 또는 SSH 호스트입니다.
+          username: ${{ vars.EC2_USER }} # EC2 로그인 계정입니다.
+          key: ${{ secrets.EC2_SSH_KEY }} # GitHub Secrets에 보관한 SSH 개인키입니다.
+          fingerprint: ${{ secrets.EC2_FINGERPRINT }} # 접속할 서버의 호스트 키를 확인합니다.
+          command_timeout: 20m # EC2에서 빌드할 시간을 확보합니다.
+          envs: PROJECT_PATH,DEPLOY_SHA,CORS_ALLOWED_ORIGINS,DB_PASSWORD # 위 환경변수를 EC2에도 전달
+          script: |
+            set -eu # 명령 실패 또는 미정의 변수 사용 시 중단
+
+            # 1. 설정 확인: 필수 값이 없으면 기존 앱을 종료하기 전에 중단합니다.
+            : "${PROJECT_PATH:?EC2_PROJECT_PATH 등록 필요}"
+            : "${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS 등록 필요}"
+            : "${DB_PASSWORD:?DB_PASSWORD Secret 등록 필요}"
+
+            # 2. 코드 갱신·빌드: CI가 통과한 커밋으로 JAR을 만듭니다.
+            cd "$PROJECT_PATH" # EC2에 이미 clone한 프로젝트로 이동합니다.
+            git fetch origin main # main의 최신 커밋을 가져옵니다.
+            git checkout --detach "$DEPLOY_SHA" # 브랜치가 아닌 CI 통과 커밋을 선택합니다.
+            bash ./gradlew clean bootJar --no-daemon # EC2에서 실행 JAR을 만듭니다.
+
+            # 3. 실행 준비: 환경변수와 새 JAR을 준비한 뒤에 기존 앱을 종료합니다.
+            export DB_PASSWORD CORS_ALLOWED_ORIGINS # Java 자식 프로세스가 읽도록 전달합니다.
+            mkdir -p "$HOME/loovi" # 실행 JAR·PID·로그를 빌드 디렉터리 밖에 보관합니다.
+            cp build/libs/assignment-1.0-SNAPSHOT.jar "$HOME/loovi/app.jar.next"
+            cd "$HOME/loovi"
+
+            # 4. 기존 앱 종료: PID 파일이 있고 해당 프로세스가 실행 중일 때만 처리합니다.
+            # kill -0은 종료 명령이 아니라 프로세스가 있는지 확인하는 명령입니다.
+            if [ -f app.pid ] && kill -0 "$(cat app.pid)" 2>/dev/null; then
+              pid=$(cat app.pid)
+              # PID가 다른 앱에 재사용됐다면 종료하지 않고 배포를 중단합니다.
+              test "$(ps -p "$pid" -o args=)" = "java -jar $PWD/app.jar"
+              kill "$pid" # SIGTERM으로 정상 종료를 요청합니다.
+              for attempt in $(seq 1 30); do
+                kill -0 "$pid" 2>/dev/null || break
+                sleep 1 # 포트가 해제되도록 최대 30초 기다립니다.
+              done
+              # 아직 실행 중이면 새 앱을 띄우지 않아 포트 충돌을 막습니다.
+              if kill -0 "$pid" 2>/dev/null; then
+                echo '기존 앱이 종료되지 않아 배포를 중단합니다.' >&2
+                exit 1
+              fi
+            fi
+
+            # 5. 새 앱 실행: SSH가 끊겨도 실행을 유지하고 로그는 app.log에 저장합니다.
+            mv app.jar.next app.jar # 기존 앱이 종료된 뒤 새 JAR로 바꿉니다.
+            nohup java -jar "$PWD/app.jar" > app.log 2>&1 < /dev/null &
+            echo $! > app.pid # $!는 방금 백그라운드로 실행한 앱의 PID입니다.
+
+            # 6. 응답 확인: 앱 시작을 기다리며 재시도하고 실패하면 CD를 실패 처리합니다.
+            curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 --max-time 5 \
+              'http://127.0.0.1:8080/api/v1/posts?page=0&size=1' > /dev/null
