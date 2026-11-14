@@ -13,6 +13,12 @@ public class Member extends BaseEntity {
     @Column(name = "member_id", nullable = false)
     private long memberId;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
     @Column(name = "member_name", nullable = false, length = MAX_NAME_LENGTH)
     private String memberName;
 
@@ -23,12 +29,14 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private boolean withdrawn = false;
 
-    public Member(String memberName, String memberPhoneNumber) {
+    public Member(String memberName, String memberPhoneNumber, String email, String password) {
         validateMemberName(memberName);
         validateMemberPhoneNumber(memberPhoneNumber);
 
         this.memberName = memberName;
         this.memberPhoneNumber = memberPhoneNumber;
+        this.email = email; // TODO: 이메일, 비번 검증 로직 추가 필요
+        this.password = password;
     }
 
     private void validateMemberName(String name) {

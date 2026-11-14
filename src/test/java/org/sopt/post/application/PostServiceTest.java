@@ -137,7 +137,7 @@ class PostServiceTest {
     }
 
     private Member member(long id, String name) {
-        Member member = new Member(name, "01012345678");
+        Member member = new Member(name, "01012345678", "aoc05230@naver.com", "zxc123");
         ReflectionTestUtils.setField(member, "memberId", id);
         return member;
     }

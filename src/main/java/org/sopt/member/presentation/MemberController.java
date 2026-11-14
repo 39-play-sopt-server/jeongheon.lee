@@ -22,7 +22,10 @@ public class MemberController {
     public ResponseEntity<ApiResponse<CreateMemberResponse>> createMember(
             @RequestBody CreateMemberRequest request
     ) {
-        long memberId = memberService.createMember(request.name(), request.memberPhoneNumber());
+        long memberId = memberService.createMember(
+                request.name(), request.memberPhoneNumber(), request.memberEmail(), request.memberPassword()
+        );
+
         CreateMemberResponse response = new CreateMemberResponse(memberId);
         ResponseCode code = ResponseCode.MEMBER_CREATED;
 

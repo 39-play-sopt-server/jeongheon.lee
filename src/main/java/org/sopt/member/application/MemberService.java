@@ -18,8 +18,8 @@ public class MemberService {
     }
 
     @Transactional
-    public long createMember(String name, String memberPhoneNumber) {
-        Member member = new Member(name, memberPhoneNumber);
+    public long createMember(String name, String memberPhoneNumber, String memberEmail, String memberPassword) {
+        Member member = new Member(name, memberPhoneNumber, memberEmail, memberPassword);
         Member savedMember = memberRepository.save(member);
 
         return savedMember.getMemberId();
