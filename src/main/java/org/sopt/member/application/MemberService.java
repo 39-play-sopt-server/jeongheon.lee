@@ -15,7 +15,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder; // TODO: SequrityConfig에서 Bean 등록 필요
-    private final JwtProvider jwtProvider;
 
     @Transactional
     public Long signUp(String name, String memberPhoneNumber, String memberEmail, String password) {
@@ -27,18 +26,6 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         return savedMember.getMemberId();
-    }
-
-    @Transactional(readOnly = true)
-    public String login(String email, String password) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
-
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
-        }
-
-        return jwtProvider.createAccessToken(member.getMemberId());
     }
 
     @Transactional

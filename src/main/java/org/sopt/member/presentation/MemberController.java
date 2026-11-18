@@ -1,22 +1,28 @@
 package org.sopt.member.presentation;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.sopt.common.presentation.code.ResponseCode;
 import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.member.application.MemberService;
 import org.sopt.member.presentation.dto.CreateMemberRequest;
 import org.sopt.member.presentation.dto.CreateMemberResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/members")
+@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
+    @GetMapping
+    public ResponseEntity<Long> myId(
+            @AuthenticationPrincipal // SecurityContext에 저장된 Authentication의 Principal을 꺼내줌
+            Long memberId) {
+        return ResponseEntity.ok(memberId);
     }
 
     @PostMapping
