@@ -22,6 +22,10 @@ dependencies {
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok' // 이 줄이 없으면 컴파일 시 Getter가 생성되지 않음
+
     // MySQL 드라이버
     runtimeOnly 'com.mysql:mysql-connector-j'
 

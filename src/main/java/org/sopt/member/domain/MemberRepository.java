@@ -16,4 +16,8 @@ public interface MemberRepository extends Repository<Member, Long> {
     void deleteById(Long memberId);
 
     List<Member> getMemberByMemberId(long memberId);
+
+    Optional<Member> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

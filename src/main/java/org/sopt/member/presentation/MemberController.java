@@ -1,5 +1,6 @@
 package org.sopt.member.presentation;
 
+import jakarta.validation.Valid;
 import org.sopt.common.presentation.code.ResponseCode;
 import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.member.application.MemberService;
@@ -20,9 +21,9 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CreateMemberResponse>> createMember(
-            @RequestBody CreateMemberRequest request
+            @Valid @RequestBody CreateMemberRequest request
     ) {
-        long memberId = memberService.createMember(
+        Long memberId = memberService.signUp(
                 request.name(), request.memberPhoneNumber(), request.memberEmail(), request.memberPassword()
         );
 
