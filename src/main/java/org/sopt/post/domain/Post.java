@@ -14,7 +14,7 @@ public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id", nullable = false)
-    private long postId;
+    private Long postId;
 
     // Id를 통한 참조 -> 회원 정보가 필요하면 응용 서비스에서 해당 ID로 조회
     // 모든 게시글이 작성자로 member를 참조해야 한다는 요구사항은 코드에서 반영
@@ -42,7 +42,7 @@ public class Post extends BaseEntity {
         this.content = content;
 
     }
-    public long getPostId() {
+    public Long getPostId() {
         return postId;
     }
     public Category getCategory() {

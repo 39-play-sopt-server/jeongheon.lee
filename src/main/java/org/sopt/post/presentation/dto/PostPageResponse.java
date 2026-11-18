@@ -10,7 +10,7 @@ public record PostPageResponse(
         List<PostResponse> content, // 현재 페이지에 포함된 게시글 목록
         int page, // 현재 페이지 번호 (0부터 시작)
         int size, // 요청한 한 페이지의 최대 게시글 개수
-        long totalElements, // 전체 게시글 개수
+        Long totalElements, // 전체 게시글 개수
         int totalPages, // 전체 페이지 개수
         boolean hasNext // 다음 페이지가 있는지 여부
 ) {

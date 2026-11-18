@@ -91,7 +91,7 @@ public class PostService {
     }
 
     // 게시물 조회해서 DTO 반환(+해당 번호의 게시글이 있는지 확인)
-    public PostResult getPostDetail(long postId) {
+    public PostResult getPostDetail(Long postId) {
         synchronized (postLock) {
             Post post = findPostOrThrow(postId);
 
@@ -139,7 +139,7 @@ public class PostService {
     }
 
     // postLock을 획득한 유스케이스 안에서만 호출, 게시물을 못찾으면 예외처리
-    private Post findPostOrThrow(long postId) {
+    private Post findPostOrThrow(Long postId) {
         return repository.findById(postId)
                 .orElseThrow(() ->
                         new PostNotFoundException("게시글을 찾을 수 없습니다.")

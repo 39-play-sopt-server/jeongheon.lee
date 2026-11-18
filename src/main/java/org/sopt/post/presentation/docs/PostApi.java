@@ -28,7 +28,7 @@ public interface PostApi {
     @Operation(summary = "게시글 상세 조회", description = "조회에 성공하면 조회수가 1 증가합니다.")
     ResponseEntity<ApiResponse<PostResponse>> getPost(
             @Parameter(description = "게시글 ID", example = "1")
-            long postId
+            Long postId
     );
 
     @Operation(summary = "게시글 수정", description = "제목과 본문을 수정합니다.")

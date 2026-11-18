@@ -13,7 +13,7 @@ public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id", nullable = false)
-    private long memberId;
+    private Long memberId;
 
     @Column(nullable = false, unique = true)
     private String email;
