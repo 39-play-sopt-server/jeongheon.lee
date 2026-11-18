@@ -56,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PostForbiddenException.class)
     public ResponseEntity<ApiResponse<Void>> handleForbidden(
-            HttpClientErrorException.Forbidden exception
+            PostForbiddenException exception
     ) {
         return failure(ResponseCode.FORBIDDEN);
     }

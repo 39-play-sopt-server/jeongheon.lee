@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final LoginService loginService;
-    private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest request) {
