@@ -10,6 +10,7 @@ import org.sopt.post.presentation.dto.PostPageResponse;
 import org.sopt.post.presentation.dto.PostResponse;
 import org.sopt.post.presentation.dto.UpdatePostRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,11 +36,12 @@ public class PostController implements PostApi {
     @Override
     @PostMapping
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
-            @RequestBody CreatePostRequest request
+            @RequestBody CreatePostRequest request,
+            @AuthenticationPrincipal Long memberId
     ) {
         // 게시글 생성
         PostResult post = postService.createPost(
-                request.memberId(),
+                memberId,
                 request.title(),
                 request.content(),
                 request.category()
@@ -91,10 +93,11 @@ public class PostController implements PostApi {
     @Override
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> updatePost(
-            @PathVariable("postId") long postId,
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal Long memberId,
             @RequestBody UpdatePostRequest request
     ) {
-        postService.updatePost(postId, request.title(), request.content());
+        postService.updatePost(postId, memberId, request.title(), request.content());
 
         ResponseCode code = ResponseCode.POST_UPDATED;
 
@@ -106,10 +109,10 @@ public class PostController implements PostApi {
     @Override
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
-            @PathVariable("postId") long postId
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal Long memberId
     ) {
-        // 삭제 권한 확인을 해야하는데... 회원 기능이 없으므로... 패쓰
-        postService.deletePost(postId);
+        postService.deletePost(postId, memberId);
 
         ResponseCode code = ResponseCode.POST_DELETED;
         return ResponseEntity.status(code.status())

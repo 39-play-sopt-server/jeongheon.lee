@@ -6,6 +6,7 @@ import org.sopt.common.presentation.code.ResponseCode;
 import org.sopt.common.presentation.response.ApiResponse;
 import org.sopt.member.application.exception.MemberNotFoundException;
 import org.sopt.member.application.exception.WithdrawnMemberException;
+import org.sopt.post.application.exception.PostForbiddenException;
 import org.sopt.post.application.exception.PostNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -52,6 +54,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return failure(ResponseCode.INVALID_REQUEST);
     }
 
+    @ExceptionHandler(PostForbiddenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleForbidden(
+            HttpClientErrorException.Forbidden exception
+    ) {
+        return failure(ResponseCode.FORBIDDEN);
+    }
     // 나머지 예외를 500으로 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(

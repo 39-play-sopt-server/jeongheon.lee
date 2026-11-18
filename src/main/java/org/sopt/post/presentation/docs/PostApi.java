@@ -15,7 +15,8 @@ public interface PostApi {
 
     @Operation(summary = "게시글 생성")
     ResponseEntity<ApiResponse<PostResponse>> createPost(
-            CreatePostRequest request
+            CreatePostRequest request,
+            Long memberId
     );
 
     @Operation(summary = "게시글 목록 조회", description = "생성일 최신순으로 조회하며 같은 생성일은 게시글 ID 내림차순으로 정렬합니다.")
@@ -32,12 +33,14 @@ public interface PostApi {
 
     @Operation(summary = "게시글 수정", description = "제목과 본문을 수정합니다.")
     ResponseEntity<ApiResponse<Void>> updatePost(
-            long postId,
+            Long postId,
+            Long memberId,
             UpdatePostRequest request
     );
 
     @Operation(summary = "게시글 삭제")
     ResponseEntity<ApiResponse<Void>> deletePost(
-            long postId
+            Long postId,
+            Long memberId
     );
 }

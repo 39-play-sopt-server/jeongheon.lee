@@ -18,7 +18,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<Long> myId(
             @AuthenticationPrincipal // SecurityContext에 저장된 Authentication의 Principal을 꺼내줌
             Long memberId) {
@@ -39,9 +39,9 @@ public class MemberController {
         return ResponseEntity.status(code.status()).body(ApiResponse.of(code, response));
     }
 
-    @DeleteMapping("/{memberId}")
+    @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteMember(
-            @PathVariable long memberId
+            @AuthenticationPrincipal Long memberId
     ) {
         memberService.deleteMember(memberId);
         ResponseCode code = ResponseCode.MEMBER_DELETED;

@@ -1,10 +1,12 @@
 package org.sopt.post.application;
 
+import lombok.RequiredArgsConstructor;
 import org.sopt.member.application.exception.WithdrawnMemberException;
 import org.sopt.member.domain.Member;
 import org.sopt.member.domain.MemberRepository;
 import org.sopt.member.application.exception.MemberNotFoundException;
 import org.sopt.post.application.dto.PostResult;
+import org.sopt.post.application.exception.PostForbiddenException;
 import org.sopt.post.application.exception.PostNotFoundException;
 import org.sopt.post.domain.Category;
 import org.sopt.post.domain.Post;
@@ -20,16 +22,11 @@ import java.util.stream.Collectors;
 
 // 게시글 작성·조회·수정·삭제의 순서 조율 담당
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final PostRepository repository;
     private final MemberRepository memberRepository;
     private final Object postLock = new Object(); // 하나의 공유 락
-
-    // 생성자
-    public PostService(PostRepository repository, MemberRepository memberRepository) {
-        this.repository = repository;
-        this.memberRepository = memberRepository;
-    }
 
     // Post를 생성하고 저장소에 보관 후 반환함
     // 빈 제목·본문 검사(도메인 규칙)는 Post가 수행함
@@ -108,11 +105,21 @@ public class PostService {
         }
     }
 
+    public Post getPost(Long postId) {
+        synchronized (postLock) {
+            return findPostOrThrow(postId);
+        }
+    }
+
     // 게시글을 찾고 수정 규칙의 실행을 Post(애그리거트)에 맡김
-    public void updatePost(long postId, String title, String content) {
+    public void updatePost(Long postId, Long memberId, String title, String content) {
         synchronized (postLock) {
             // 게시글 존재 여부 먼저 확인
             Post post = findPostOrThrow(postId);
+            // 본인이 작성한 게시글이 맞는지 확인
+            if (!post.getMemberId().equals(memberId)) {
+                throw new PostForbiddenException("본인이 작성한 게시글만 수정할 수 있습니다");
+            }
 
             post.update(title, content);
             repository.save(post);
@@ -121,9 +128,12 @@ public class PostService {
     }
 
     // 게시글을 찾고 저장소에 제거를 요청
-    public void deletePost(long postId) {
+    public void deletePost(Long postId, Long memberId) {
         synchronized (postLock) {
             Post post = findPostOrThrow(postId);
+            if (!post.getMemberId().equals(memberId)) {
+                throw new PostForbiddenException("본인이 작성한 게시글만 삭제할 수 있습니다");
+            }
             repository.delete(post);
         }
     }

@@ -18,7 +18,8 @@ public enum ResponseCode {
     MEMBER_DELETED(HttpStatus.OK, "MEMBER_DELETED", "회원 삭제 성공"),
     MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_WITHDRAWN", "탈퇴한 회원은 게시글을 작성할 수 없습니다."),
     
-    LOGIN_FINISHED(HttpStatus.OK, "LOGIN_FINISHED" , "로그인 성공");
+    LOGIN_FINISHED(HttpStatus.OK, "LOGIN_FINISHED" , "로그인 성공"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "FORBIDDEN", "권한이 없습니다");
 
     private final HttpStatus status;
     private final String code;
