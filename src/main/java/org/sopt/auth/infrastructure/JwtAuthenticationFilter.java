@@ -6,7 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.sopt.common.JwtProvider;
+import org.sopt.auth.application.AccessAuthenticationService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +20,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    private final JwtProvider jwtProvider;
+    private final AccessAuthenticationService authenticationService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -30,11 +30,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                Long memberId = jwtProvider.parseAccessToken(token).memberId();
+                var tokenInfo = authenticationService.authenticate(token);
 
                 // 인증 완료된 Authentication 생성 후 SecurityContext에 저장
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(memberId, null, List.of());
+                        new UsernamePasswordAuthenticationToken(tokenInfo.memberId(), null, List.of());
+                authentication.setDetails(tokenInfo.sessionId());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException | IllegalArgumentException e) {
                 // 유효하지 않은 토큰이면 인증 정보를 저장하지 않음

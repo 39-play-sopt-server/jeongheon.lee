@@ -11,10 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 
 @Service
 @RequiredArgsConstructor
@@ -43,18 +39,10 @@ public class LoginService {
                 member.getMemberId(), "pending", now.plusSeconds(60), now));
         String refreshToken = jwtProvider.createRefreshToken(member.getMemberId(), session.getSessionId());
         JwtProvider.TokenInfo refreshInfo = jwtProvider.parseRefreshToken(refreshToken);
-        session.rotateToken(hashToken(refreshToken), refreshInfo.expiresAt(), now);
+        session.rotateToken(RefreshTokenHash.hash(refreshToken), refreshInfo.expiresAt(), now);
         String accessToken = jwtProvider.createAccessToken(member.getMemberId(), session.getSessionId());
         Instant accessExpiresAt = jwtProvider.parseAccessToken(accessToken).expiresAt();
         return new LoginResult(accessToken, accessExpiresAt, refreshToken, refreshInfo.expiresAt());
     }
 
-    private String hashToken(String token) {
-        try {
-            byte[] hash = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256을 사용할 수 없습니다.", e);
-        }
-    }
 }
