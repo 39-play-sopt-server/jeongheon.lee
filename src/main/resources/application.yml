@@ -1,4 +1,6 @@
 app:
+  auth:
+    refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:true} # 로컬 HTTP에서는 false
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000} # 환경변수가 없으면 로컬 프론트엔드 주소를 사용
 

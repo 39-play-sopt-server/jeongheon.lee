@@ -33,6 +33,9 @@ public class LoginService {
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
+        if (member.isWithdrawn()) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
 
         // IDENTITY 방식에서는 저장한 후 세션 ID가 생성됨
         Instant now = Instant.now();
@@ -42,7 +45,8 @@ public class LoginService {
         JwtProvider.TokenInfo refreshInfo = jwtProvider.parseRefreshToken(refreshToken);
         session.rotateToken(hashToken(refreshToken), refreshInfo.expiresAt(), now);
         String accessToken = jwtProvider.createAccessToken(member.getMemberId(), session.getSessionId());
-        return new LoginResult(accessToken, refreshToken);
+        Instant accessExpiresAt = jwtProvider.parseAccessToken(accessToken).expiresAt();
+        return new LoginResult(accessToken, accessExpiresAt, refreshToken, refreshInfo.expiresAt());
     }
 
     private String hashToken(String token) {
