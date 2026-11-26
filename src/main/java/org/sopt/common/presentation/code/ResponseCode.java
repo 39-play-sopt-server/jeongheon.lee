@@ -16,7 +16,13 @@ public enum ResponseCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "회원을 찾을 수 없습니다"),
     MEMBER_CREATED(HttpStatus.CREATED, "MEMBER_CREATED", "회원가입 성공"),
     MEMBER_DELETED(HttpStatus.OK, "MEMBER_DELETED", "회원 삭제 성공"),
-    MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_WITHDRAWN", "탈퇴한 회원은 게시글을 작성할 수 없습니다.");
+    MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_WITHDRAWN", "탈퇴한 회원은 게시글을 작성할 수 없습니다."),
+    
+    LOGIN_FINISHED(HttpStatus.OK, "LOGIN_FINISHED" , "로그인 성공"),
+    LOGOUT_FINISHED(HttpStatus.OK, "LOGOUT_FINISHED", "로그아웃 성공"),
+    TOKEN_REFRESHED(HttpStatus.OK, "TOKEN_REFRESHED", "토큰 재발급 성공"),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_TOKEN", "유효하지 않은 Refresh Token입니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "FORBIDDEN", "권한이 없습니다");
 
     private final HttpStatus status;
     private final String code;

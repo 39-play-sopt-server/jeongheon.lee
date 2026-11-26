@@ -4,11 +4,11 @@ import org.sopt.post.application.dto.PostResult;
 import org.sopt.post.domain.Category;
 
 public record PostResponse(
-        long id,
+        Long id,
         String title,
         String content,
         Category category,
-        long viewCount,
+        Long viewCount,
         String authorName,
         boolean authorWithdrawn
 ) {

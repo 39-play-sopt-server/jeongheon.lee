@@ -6,11 +6,11 @@ import org.sopt.post.domain.Post;
 
 // 서비스가 반환할 불변 결과 객체(서비스가 반환하는 특정 시점의 값)
 public record PostResult(
-        long id,
+        Long id,
         Category category,
         String title,
         String content,
-        long viewCount,
+        Long viewCount,
         String authorName,
         boolean authorWithdrawn
 ) {
@@ -20,7 +20,7 @@ public record PostResult(
                 post.getCategory(),
                 post.getTitle(),
                 post.getContent(),
-                post.getViewCount(),
+                Long.valueOf(post.getViewCount()),
                 author.getMemberName(),
                 author.isWithdrawn()
         );
