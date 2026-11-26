@@ -30,11 +30,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                var tokenInfo = authenticationService.authenticate(token);
+                var tokenInfo = authenticationService.authenticate(token); // 검증 수행
 
                 // 인증 완료된 Authentication 생성 후 SecurityContext에 저장
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(tokenInfo.memberId(), null, List.of());
+                        new UsernamePasswordAuthenticationToken(
+                                tokenInfo.memberId(),
+                                null,
+                                List.of()
+                        );
                 authentication.setDetails(tokenInfo.sessionId());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException | IllegalArgumentException e) {

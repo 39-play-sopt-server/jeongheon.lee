@@ -26,6 +26,7 @@ public class RefreshService {
     @Transactional
     public LoginResult refresh(String refreshToken) {
         JwtProvider.TokenInfo info = validateToken(refreshToken);
+
         AuthSession session = sessionRepository.findByIdForUpdate(info.sessionId())
                 .orElseThrow(InvalidRefreshTokenException::new);
 

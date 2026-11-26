@@ -18,9 +18,10 @@ public class LogoutService {
     public void logout(Long memberId, Long sessionId) {
         AuthSession session = sessions.findByIdForUpdate(sessionId)
                 .orElseThrow(InvalidRefreshTokenException::new);
+
         if (!memberId.equals(session.getMemberId()) || !session.isUsable(Instant.now())) {
             throw new InvalidRefreshTokenException();
         }
-        session.revoke(Instant.now());
+        session.revoke(Instant.now()); // 세션 폐기
     }
 }

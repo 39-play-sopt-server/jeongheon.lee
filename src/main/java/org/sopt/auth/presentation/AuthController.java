@@ -45,6 +45,7 @@ public class AuthController {
         return tokenResponse(tokens, ResponseCode.LOGIN_FINISHED);
     }
 
+    // 토큰 재발급
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<LoginResponse>> refresh(
             @CookieValue(value = "refreshToken", required = false) String refreshToken
@@ -52,20 +53,35 @@ public class AuthController {
         return tokenResponse(refreshService.refresh(refreshToken), ResponseCode.TOKEN_REFRESHED);
     }
 
+    // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(Authentication authentication) {
-        logoutService.logout((Long) authentication.getPrincipal(), (Long) authentication.getDetails());
+        // 세션 폐기
+        logoutService.logout(
+                (Long) authentication.getPrincipal(), // 회원 ID
+                (Long) authentication.getDetails() // 로그인 세션 ID
+        );
+
+        // 기존 쿠키와 같은 이름, 경로로 쿠키를 만들면서 쿠키를 즉시 만료시킬 쿠키를 만듦
         ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true).secure(secureCookie).sameSite("Lax")
-                .path("/api/v1/auth").maxAge(0).build();
+                .path("/api/v1/auth")
+                .maxAge(0) // 즉시 만료!!
+                .build();
+
         ResponseCode code = ResponseCode.LOGOUT_FINISHED;
-        return ResponseEntity.status(code.status()).header(HttpHeaders.SET_COOKIE, cookie.toString())
+
+        return ResponseEntity.status(code.status())
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(ApiResponse.of(code, null));
     }
 
     private ResponseEntity<ApiResponse<LoginResponse>> tokenResponse(LoginResult tokens, ResponseCode code) {
-        long cookieSeconds = Math.max(0, java.time.Duration.between(
-                java.time.Instant.now(), tokens.refreshExpiresAt()).toSeconds());
+        // 쿠키의 유지 기간 설정
+        long cookieSeconds = Math.max(
+                0,
+                java.time.Duration.between(java.time.Instant.now(), tokens.refreshExpiresAt()).toSeconds());
+
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.refreshToken())
                 .httpOnly(true)
                 .secure(secureCookie)
@@ -73,6 +89,7 @@ public class AuthController {
                 .path("/api/v1/auth")
                 .maxAge(cookieSeconds)
                 .build();
+
         LoginResponse response = new LoginResponse(tokens.accessToken(), tokens.accessExpiresAt());
 
         return ResponseEntity.status(code.status())
