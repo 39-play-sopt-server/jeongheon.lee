@@ -18,6 +18,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    // 내 정보 조회
     @GetMapping("/me")
     public ResponseEntity<Long> myId(
             @AuthenticationPrincipal // SecurityContext에 저장된 Authentication의 Principal을 꺼내줌
@@ -25,6 +26,7 @@ public class MemberController {
         return ResponseEntity.ok(memberId);
     }
 
+    // 회원가입
     @PostMapping
     public ResponseEntity<ApiResponse<CreateMemberResponse>> createMember(
             @Valid @RequestBody CreateMemberRequest request
@@ -39,6 +41,7 @@ public class MemberController {
         return ResponseEntity.status(code.status()).body(ApiResponse.of(code, response));
     }
 
+    // 회원탈퇴
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteMember(
             @AuthenticationPrincipal Long memberId

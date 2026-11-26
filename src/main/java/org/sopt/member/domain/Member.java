@@ -85,8 +85,4 @@ public class Member extends BaseEntity {
     public void withdraw() {
         this.withdrawn = true;
     }
-
-    // 유저는 회원 생성을 할 수 있다 -> 회원가입 할 수 있다
-    
-    // 회원은 회원 삭제를 할 수 있다 -> 회원탈퇴 할 수 있다
 }

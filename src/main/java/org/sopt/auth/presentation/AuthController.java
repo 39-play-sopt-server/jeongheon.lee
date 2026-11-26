@@ -20,10 +20,14 @@ public class AuthController {
 
     private final LoginService loginService;
 
+    // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<String>> login(
+            @RequestBody LoginRequest request
+    ) {
         String accessToken = loginService.login(request.email(), request.password());
         ResponseCode code = ResponseCode.LOGIN_FINISHED;
-        return ResponseEntity.status(200).body(ApiResponse.of(code, accessToken));
+
+        return ResponseEntity.status(code.status()).body(ApiResponse.of(code, accessToken));
     }
 }
