@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(allowOrigins)
                 .allowedMethods("GET", "POST", "PUT", "PATCH","DELETE") // 허용할 HTTP 메서드
                 .allowedHeaders("Content-Type", "Authorization")  // 요청에 사용할 수 있는 HTTP 헤더
-                .allowCredentials(false); // 교차 출처 요청의 쿠키 등 브라우저 자격 증명 허용 여부
+                .allowCredentials(true); // 교차 출처 요청의 쿠키 등 브라우저 자격 증명 허용 여부
     }
 
 }
