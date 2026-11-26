@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                Long memberId = jwtProvider.getMemberId(token);
+                Long memberId = jwtProvider.parseAccessToken(token).memberId();
 
                 // 인증 완료된 Authentication 생성 후 SecurityContext에 저장
                 UsernamePasswordAuthenticationToken authentication =
